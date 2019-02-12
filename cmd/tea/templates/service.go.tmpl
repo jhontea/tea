@@ -1,0 +1,31 @@
+package {{.PackageName}}
+
+import (
+	"github.com/jinzhu/copier"
+	"github.com/jinzhu/gorm"
+
+	"../../models"
+	objects "../../objects/{{.PackageName}}"
+	repositories "../../repository/{{.PackageName}}"
+	"../../requests"
+)
+
+type {{.ServiceName}}Service struct {
+	{{.ServiceName}}Repository repositories.{{.ServiceName}}Repository
+}
+
+func {{.ServiceName}}ServiceHandler(db *gorm.DB) {{.ServiceName}}Service {
+	service := {{.ServiceName}}Service{
+		{{.ServiceName}}Repository: repositories.{{.ServiceName}}RepositoryHandler(db),
+	}
+	return service
+}
+
+func (this *{{.ServiceName}}Service) Get() ([]objects.{{.ServiceName}}Object, error) {
+	models, err := this.{{.ServiceName}}Repository.Get()
+
+	objects := []objects.{{.ServiceName}}Object{}
+	copier.Copy(&objects, models)
+
+	return objects, err
+}

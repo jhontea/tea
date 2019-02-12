@@ -1,0 +1,39 @@
+package controllers
+
+import (
+	"../constants"
+	"../middleware"
+	"../requests"
+
+	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
+)
+
+type {{.ControllerName}}Controller struct {
+	Controllers
+}
+
+func {{.ControllerName}}ControllerHandler(router *gin.Engine, db *gorm.DB, defaultMiddleware middleware.DefaultMiddleware) {
+	handler := &{{.ControllerName}}Controller{}
+
+	group := router.Group("/v1")
+	{
+		group.GET("/endpoint", handler.Get)
+	}
+}
+
+// Get godoc
+// @Summary Show app versions data
+// @Description Show all app version data
+// @Tags App Version
+// @Accept json
+// @Produce json
+// @Success 200 {string} string "Ok"
+// @Failure 400 {string} string "Bad Request"
+// @Failure 401 {string} string "Unauthorized"
+// @Failure 500 {string} string "Internal Server Error"
+// @Router /v1/endpoint [get]
+func (this *{{.ControllerName}}Controller) Get(context *gin.Context) {
+	response := this.ResponseHelper.SuccessResponse(nil, "Success retrieve data")
+	context.JSON(response.Code, response)
+}

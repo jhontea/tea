@@ -1,0 +1,14 @@
+package models
+
+import (
+	"github.com/jinzhu/gorm"
+)
+
+type {{.ModelName}}Model struct {
+	gorm.Model
+	Field   string `gorm:"column:field" json:"field"`
+}
+
+func ({{.ModelName}}Model) TableName() string {
+	return "{{.TableName}}"
+}

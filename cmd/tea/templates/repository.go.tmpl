@@ -1,0 +1,96 @@
+package {{.PackageName}}
+
+import (
+	"github.com/jinzhu/copier"
+	"github.com/jinzhu/gorm"
+
+	"../../models"
+)
+
+type {{.RepositoryName}}Repository struct {
+	DB gorm.DB
+}
+
+func {{.RepositoryName}}RepositoryHandler(db *gorm.DB) {{.RepositoryName}}Repository {
+	repository := {{.RepositoryName}}Repository{DB: *db}
+	return repository
+}
+
+func (repository *{{.RepositoryName}}Repository) Get() ([]models.{{.ModelName}}Model, error) {
+	var models []models.{{.ModelName}}Model
+
+	query := repository.DB.Find(&models)
+
+	return models, query.Error
+}
+
+func (repository *{{.RepositoryName}}Repository) Create(data interface{}) (models.{{.ModelName}}Model, error) {
+	var model models.{{.ModelName}}Model
+	copier.Copy(&model, data)
+
+	query := repository.DB.Begin()
+	query = query.Create(&model)
+
+	if err := query.Error; err != nil {
+		query.Rollback()
+		return model, err
+	}
+
+	return model, query.Commit().Error
+}
+
+func (repository *{{.RepositoryName}}Repository) Update(data interface{}) (models.{{.ModelName}}Model, error) {
+	var model models.{{.ModelName}}Model
+	copier.Copy(&model, data)
+
+	query := repository.DB.Begin()
+	query = query.Model(&model).Updates(&model)
+
+	if err := query.Error; err != nil {
+		query.Rollback()
+		return model, err
+	}
+
+	return model, query.Commit().Error
+}
+
+func (repository *{{.RepositoryName}}Repository) Delete(data interface{}) (models.{{.ModelName}}Model, error) {
+	var model models.{{.ModelName}}Model
+	copier.Copy(&model, data)
+
+	query := repository.DB.Begin()
+	query = query.Delete(&model)
+
+	if err := query.Error; err != nil {
+		query.Rollback()
+		return model, err
+	}
+
+	return model, query.Commit().Error
+}
+
+func (repository *{{.RepositoryName}}Repository) GetOneByField(field string, value interface{}) (models.{{.ModelName}}Model, error) {
+	var model models.{{.ModelName}}Model
+
+	query := repository.DB.Where(field+" = ?", value)
+	query = query.Find(&model)
+
+	if query.RecordNotFound() {
+		return model, nil
+	}
+
+	return model, query.Error
+}
+
+func (repository *{{.RepositoryName}}Repository) GetAllByField(field string, value interface{}) ([]models.{{.ModelName}}Model, error) {
+	var models []models.{{.ModelName}}Model
+
+	query := repository.DB.Where(field+" = ?", value)
+	query = query.Find(&models)
+
+	if query.RecordNotFound() {
+		return models, nil
+	}
+
+	return models, query.Error
+}
